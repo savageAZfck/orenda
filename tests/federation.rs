@@ -19,10 +19,7 @@ fn certify(owner: &SigningKey, node: &SigningKey, serial: u64, cap: Capability) 
 
 fn pop(node: &SigningKey, cert: &MemberCert) -> String {
     use ed25519_dalek::Signer;
-    hex::encode(
-        node.sign(&pop_message(cert.serial, &cert.node))
-            .to_bytes(),
-    )
+    hex::encode(node.sign(&pop_message(cert.serial, &cert.node)).to_bytes())
 }
 
 fn now() -> u64 {
@@ -75,7 +72,9 @@ fn enrollment_requires_proof_of_possession() {
     ));
     // Correct proof → enrolled.
     let cert2 = certify(&owner, &node, 2, cap(Accel::Gpu, 8, 120));
-    assert!(fed.enroll(cert2.clone(), &pop(&node, &cert2), now()).is_ok());
+    assert!(fed
+        .enroll(cert2.clone(), &pop(&node, &cert2), now())
+        .is_ok());
     assert_eq!(fed.len(), 1);
 }
 
@@ -113,7 +112,9 @@ fn revocation_blocks_reenrollment() {
     // A *new* cert (serial 8) for the same node may re-enroll —
     // serial-scoped revocation, not a node ban.
     let cert8 = certify(&owner, &node, 8, cap(Accel::Gpu, 8, 120));
-    assert!(fed.enroll(cert8.clone(), &pop(&node, &cert8), now()).is_ok());
+    assert!(fed
+        .enroll(cert8.clone(), &pop(&node, &cert8), now())
+        .is_ok());
 
     // Node ban kills all future certs.
     assert!(fed.revoke(Revocation::ban_node(&owner, node_id(&node.verifying_key()))));
@@ -245,12 +246,8 @@ fn attestation_proves_which_nodes_served() {
     // A node claiming another's shard fails.
     let thief = member_key();
     let mut bad = att.clone();
-    bad.records.push(ServedRecord::sign(
-        &thief,
-        &plan.plan_hash,
-        0,
-        10..20,
-    ));
+    bad.records
+        .push(ServedRecord::sign(&thief, &plan.plan_hash, 0, 10..20));
     assert!(bad.verify(&fed, now()).is_err());
 
     // A record bound to a different plan fails.

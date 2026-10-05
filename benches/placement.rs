@@ -26,9 +26,7 @@ fn main() {
             },
             86_400,
         );
-        let pop = hex::encode(
-            node.sign(&pop_message(cert.serial, &cert.node)).to_bytes(),
-        );
+        let pop = hex::encode(node.sign(&pop_message(cert.serial, &cert.node)).to_bytes());
         fed.enroll(cert, &pop, t0).unwrap();
     }
 

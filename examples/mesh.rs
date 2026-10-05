@@ -61,7 +61,11 @@ fn main() {
 
     // The plan every node independently computes and verifies.
     let plan = fed.plan(&owner, &model, now(), 300);
-    println!("\nplan {} — {} shards:", &plan.plan_hash[..16], plan.shards.len());
+    println!(
+        "\nplan {} — {} shards:",
+        &plan.plan_hash[..16],
+        plan.shards.len()
+    );
     for (i, s) in plan.shards.iter().enumerate() {
         let name = names[nodes
             .iter()
@@ -96,7 +100,11 @@ fn main() {
         records,
     };
     att.verify(&fed, now()).expect("attestation verifies");
-    println!("\nattestation verified: {} nodes served under plan {}", att.records.len(), &plan.plan_hash[..16]);
+    println!(
+        "\nattestation verified: {} nodes served under plan {}",
+        att.records.len(),
+        &plan.plan_hash[..16]
+    );
 
     // The closet box starts acting strange — ban it.
     let closet_id = node_id(&nodes[2].verifying_key());

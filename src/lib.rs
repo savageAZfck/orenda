@@ -571,15 +571,21 @@ impl Federation {
         }
         // Revocation check: the cert's serial is revoked, or the whole
         // node is banned (serial == 0 entries).
-        if self.revocations.iter().any(|r| {
-            r.node == cert.node && (r.serial == 0 || r.serial == cert.serial)
-        }) {
+        if self
+            .revocations
+            .iter()
+            .any(|r| r.node == cert.node && (r.serial == 0 || r.serial == cert.serial))
+        {
             return Err(EnrollError::Revoked);
         }
         let Some(node_vk) = parse_vk(&cert.node) else {
             return Err(EnrollError::BadProof);
         };
-        if !verify_sig(&node_vk, &pop_message(cert.serial, &cert.node), pop_signature) {
+        if !verify_sig(
+            &node_vk,
+            &pop_message(cert.serial, &cert.node),
+            pop_signature,
+        ) {
             return Err(EnrollError::BadProof);
         }
         let node = cert.node.clone();
@@ -614,7 +620,9 @@ impl Federation {
         let Some(member) = self.members.get_mut(node) else {
             return false;
         };
-        let Some(vk) = parse_vk(node) else { return false };
+        let Some(vk) = parse_vk(node) else {
+            return false;
+        };
         let msg = format!("orenda-heartbeat:{}:{at}", member.cert.serial).into_bytes();
         if !verify_sig(&vk, &msg, signature) {
             return false;
